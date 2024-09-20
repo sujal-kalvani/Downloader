@@ -6,10 +6,17 @@ const cors = require('cors');
 const ytdl = require('ytdl-core');
 const { spawn } = require('child_process');
 const fs = require('fs');
+const { exec } = require("yt-dlp-exec");
+// const path = require("path");
 const ffmpeg = require('fluent-ffmpeg');
+const axios = require('axios');
+const cheerio = require('cheerio');
+const puppeteer = require('puppeteer');
 
 app.use(express.json());
 app.use(cors());
+
+// ==================================== YOUTUBE SERVER CODE ===========================================
 
 const getResu = (formats) => {
   let resuArray = [];
@@ -49,7 +56,7 @@ app.get('/api/video-download2', async (req, res) => {
 
   console.log(`Downloading video from URL: ${videoURL} with quality: ${quality}`);
 
-  const ytDlpPath = 'C:\\Users\\Piyush\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\yt-dlp.exe';
+  const ytDlpPath = 'C:\\Users\\Devendra Bharvad\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\yt-dlp.exe';
   const tempDir = path.join(__dirname, 'downloads');
   if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
 
@@ -133,6 +140,252 @@ app.get('/api/video-download2', async (req, res) => {
     res.status(500).send('Failed to process video');
   }
 });
+
+// =================================== INSTAGRAM SERVER =====================================================
+app.post('/api/download', async (req, res) => {
+  const { url } = req.body;
+  
+  try {
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: 'networkidle2' });
+
+    const data = await page.evaluate(() => {
+      const videoElement = document.querySelector('video');
+      const imageElement = document.querySelector('meta[property="og:image"]');
+      
+      return {
+        thumbnail_url: imageElement?.content || null,
+        media_url: videoElement ? videoElement.src : imageElement?.content,
+        title: document.querySelector('meta[property="og:title"]')?.content,
+      };
+    });
+
+    await browser.close();
+    
+    if (!data.media_url) {
+      return res.status(500).json({ error: 'Failed to extract media URL.' });
+    }
+
+    console.log('Fetched Instagram post data:', data);
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching Instagram post:', error);
+    res.status(500).json({ error: 'Failed to fetch data from Instagram.' });
+  }
+});
+
+app.get('/api/reel-download', async (req, res) => {
+  const reelURL = req.query.url;
+
+  if (!reelURL) {
+    return res.status(400).send('Instagram media URL is required');
+  }
+
+  console.log(`Downloading Instagram media from URL: ${reelURL}`);
+
+  const ytDlpPath = 'C:\\Users\\Devendra Bharvad\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\yt-dlp.exe';
+  const tempDir = path.join(__dirname, 'downloads');
+  if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+
+  try {
+    const mediaFilePath = path.join(tempDir, 'media.mp4'); 
+
+    
+    const videoArgs = [
+      '-f', 'best',  
+      '-o', mediaFilePath,
+      reelURL
+    ];
+
+    const videoProcess = spawn(ytDlpPath, videoArgs);
+
+    videoProcess.on('close', (code) => {
+      if (code !== 0) {
+        console.error(`Media download process exited with code ${code}`);
+        return res.status(500).send('Error downloading Instagram media');
+      }
+
+      console.log('Media downloaded successfully');
+
+      // Serve the downloaded file
+      res.download(mediaFilePath, 'media.mp4', (err) => {
+        if (err) {
+          console.error(`Error sending file: ${err}`);
+        }
+        // Clean up the file after sending
+        fs.unlink(mediaFilePath, (err) => {
+          if (err) console.error(`Error deleting media file: ${err}`);
+        });
+      });
+    });
+
+    videoProcess.on('error', (err) => {
+      console.error(`Media download process error: ${err.message}`);
+      res.status(500).send('Error processing Instagram media download');
+    });
+  } catch (error) {
+    console.error('Error during Instagram media download:', error);
+    res.status(500).send('Failed to process Instagram media');
+  }
+});
+
+// ===================================== FACEBOOK SERVER =================================================
+
+app.post("/api/fb-video-info", async (req, res) => {
+  const { url } = req.body;
+
+  if (!url) {
+    return res.status(400).json({ error: "No URL provided" });
+  }
+
+  try {
+    // Fetch video details using yt-dlp
+    const result = await exec(url, {
+      dumpSingleJson: true,
+      noWarnings: true,
+      noCheckCertificates: true,
+      format: "best",
+    });
+
+    const videoInfo = JSON.parse(result.stdout);
+    const { title, thumbnail, duration } = videoInfo;
+    
+    // Sort qualities by resolution
+    
+
+    res.json({
+      title,
+      thumbnail,
+      duration,
+    });
+  } catch (error) {
+    console.error("Error fetching video info:", error);
+    res.status(500).json({ error: "Failed to fetch video info" });
+  }
+});
+
+app.post("/api/fb-download", async (req, res) => {
+  const { url } = req.body;
+  if (!url) {
+    return res.status(400).json({ error: "No URL provided" });
+  }
+
+  const outputFileName = path.join(__dirname, "video.mp4");
+
+  try {
+    // Downloading video using yt-dlp
+    await exec(url, {
+      output: outputFileName,
+      format: "best",
+    });
+
+    // Send the video file to the client
+    res.download(outputFileName, (err) => {
+      if (err) {
+        res.status(500).send("Error downloading video");
+      }
+
+      // Clean up the downloaded file after sending
+      fs.unlinkSync(outputFileName);
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to download video" });
+  }
+});
+
+// ==================================== X SERVER CODE ================================================
+// Function to format file sizes in a readable way
+const formatBytes = (bytes, decimals = 2) => {
+  if (!bytes) return "Unknown size";
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+};
+
+// Endpoint to fetch video details
+app.post("/api/x-video-info", async (req, res) => {
+  const { url } = req.body;
+
+  if (!url) {
+    return res.status(400).json({ error: "No URL provided" });
+  }
+
+  try {
+    // Fetch video details using yt-dlp
+    const result = await exec(url, {
+      dumpSingleJson: true,
+      noWarnings: true,
+      noCheckCertificates: true,
+      format: "best",
+    });
+
+    const videoInfo = JSON.parse(result.stdout);
+    const { title, thumbnail, duration, formats } = videoInfo;
+
+    // Filter and format available qualities
+    const qualities = formats
+      .filter(
+        (format) =>
+          format.ext === "mp4" && // Only MP4 formats
+          format.vcodec !== "none" && // Exclude video-only formats
+          format.acodec !== "none" // Exclude audio-only formats
+      )
+      .map((format) => ({
+        quality: format.format_id,
+        resolution: format.height ? `${format.height}p` : format.format_note, // Use height if available, else fallback to format note
+        size: format.filesize ? formatBytes(format.filesize) : "Unknown size", // Convert size to a readable format
+      }));
+
+    // Sort qualities by resolution
+    qualities.sort((a, b) => {
+      const resA = parseInt(a.resolution);
+      const resB = parseInt(b.resolution);
+      return resB - resA; // Sort descending
+    });
+
+    res.json({
+      title,
+      thumbnail,
+      duration,
+      qualities,
+    });
+  } catch (error) {
+    console.error("Error fetching video info:", error);
+    res.status(500).json({ error: "Failed to fetch video info" });
+  }
+});
+
+app.post("/api/x-download", async (req, res) => {
+  const { url, quality } = req.body;
+  const outputFileName = path.join(__dirname, "video.mp4");
+
+  if (!url || !quality) {
+    return res.status(400).json({ error: "URL or quality not provided" });
+  }
+
+  try {
+    // Downloading video in selected quality using yt-dlp
+    await exec(url, {
+      format: quality,
+      output: outputFileName,
+    });
+
+    // Send the video file to the client
+    res.download(outputFileName, (err) => {
+      if (err) {
+        res.status(500).send("Error downloading video");
+      }
+
+      // Clean up the downloaded file after sending
+      fs.unlinkSync(outputFileName);
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to download video" });
+  }
+});   
 
 app.get('/', (req, res) => {
   res.send('Start');

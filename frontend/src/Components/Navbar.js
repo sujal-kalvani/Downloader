@@ -32,10 +32,10 @@ export default function Navbar(props) {
                     <Link to="/InstaDownloader"><img src="https://www.pnguniverse.com/wp-content/uploads/2020/10/Logo-de-instagram-original.png" className='Insta_logo' alt="Not-found" /></Link>
                 </div>
                 <div className="drag-icon h-10 w-10 flex justify-center items-center gap-1">
-
+                    <Link to="/FbDownloader"><img src="https://www.pnguniverse.com/wp-content/uploads/2020/10/Logo-de-instagram-original.png" className='Insta_logo' alt="Not-found" /></Link>    
                 </div>
                 <div className="drag-icon h-10 w-10 flex justify-center items-center gap-1">
-
+                <Link to="/XDownloader"><img src="https://www.pnguniverse.com/wp-content/uploads/2020/10/Logo-de-instagram-original.png" className='Insta_logo' alt="Not-found" /></Link>    
                 </div>
                 <div className="drag-icon h-10 w-10 flex justify-center items-center gap-1">
                     <svg
