@@ -110,10 +110,6 @@ input::placeholder
   #fd5949 45%, #d6249f 60%, 
   #285AEB 90%);
 }
-.drag-icon-facebook
-{
-  background-color:rgba(24,119,242,255);
-}
 .drag-icon-i
 {
   border-top: 3px solid white;
@@ -195,6 +191,10 @@ body
   margin-right: 80px;
   margin-left: 20px;
   margin-bottom: 10px;
+}
+.progress-bar-container {
+  width: 100%;
+  background-color: #f3f3
 }
 .thumbnail{
   height: 220px;
