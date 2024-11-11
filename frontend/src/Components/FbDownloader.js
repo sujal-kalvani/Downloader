@@ -135,7 +135,8 @@ function FbDownloader() {
       {videoInfo && (
         <div className="info-box-1">
           <img src={videoInfo.thumbnail} alt="" className="thumbnailReel" />
-          <div className="flex w-[50%] h-[100%] info">
+          <div className="flex w-[80%] h-[100%] info">
+          <div className="flex gap-4 flex-col w-[100%] items-center">
             <p className="font-semibold">{videoInfo.title.slice(0, 55)}...</p>
             <p className="">Duration: {new Date(videoInfo.duration * 1000).toISOString().substr(11, 8)}</p>
             <button
@@ -144,6 +145,7 @@ function FbDownloader() {
             >
               Download
             </button>
+            </div>  
           </div>
         </div>
       )}

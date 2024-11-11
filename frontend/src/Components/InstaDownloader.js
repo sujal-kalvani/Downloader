@@ -143,9 +143,9 @@ function InstagramDownloader() {
 
       {data && data.thumbnail_url && (
         <div className="info-box-1">
-          <img src={data.thumbnail_url} alt="" className="thumbnailReel" />
-          <div className="flex w-[50%] h-[100%] info">
-            <p className="font-semibold">{data.title ? data.title.slice(0, 55) : 'No title'}...</p>
+          <img src={data.thumbnail_url} alt="" className="thumbnailReel"/>
+          <div className="flex w-[70%] h-[250px] flex-col gap-16 items-center pt-3">
+            <p className="font-semibold text-lg title ml-1">{data.title ? data.title.slice(0, 50) : 'No title'}...</p>
             <button
               onClick={handleReelDownload}
               className="px-3 py-2 bg-green-500 download"

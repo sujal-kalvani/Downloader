@@ -147,7 +147,7 @@ function Downloader() {
             </div>
             <div className="flex w-[50%] h-[100%] info">
               <div className="flex gap-3 flex-col w-[100%] items-center">
-                <p className="font-semibold">{videoInfo.title.slice(0, 55)}...</p>
+                <p className="font-semibold video-title">{videoInfo.title.slice(0, 55)}...</p>
                 <p className="">Duration: {duration}</p>
                 <select
                   className="border-indigo rounded-md dropdown font-semibold"

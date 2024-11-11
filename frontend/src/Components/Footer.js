@@ -5,11 +5,16 @@
         <footer>
         <div className="footer-container">
           <div className="footer-section">
-            <h4>About Us</h4>
-            <p>We provide the best services to download videos from various platforms.</p>
+            <h4 className='font-bold'>Free Tools</h4>
+            <ul>
+              <li><a href="#">Youtube Video Downloder</a></li>
+              <li><a href="#">Instagram Video Downloder</a></li>
+              <li><a href="#">Facebook Video Downloder</a></li>
+              <li><a href="#">X Video Downloder</a></li>
+            </ul>
           </div>
           <div className="footer-section">
-            <h4>Quick Links</h4>
+            <h4 className='font-bold'>Quick Links</h4>
             <ul>
               <li><a href="#">Home</a></li>
               <li><a href="#">About</a></li>
@@ -17,8 +22,8 @@
               <li><a href="#">Contact</a></li>
             </ul>
           </div>
-          <div className="footer-section flex flex-col gap-1">
-            <h4>Follow Us</h4>
+          <div className="footer-section flex flex-col gap-1 mb-4">
+            <h4 className='font-bold'>Follow Us</h4>
             <a href="#" className='hover:underline'>Youtube</a>
             <a href="#" className='hover:underline'>Instagram</a>
             <a href="#" className='hover:underline'>Facebook</a> 
