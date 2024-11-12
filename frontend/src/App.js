@@ -19,7 +19,7 @@ function App() {
   return (
     <>
       <Router>
-        <div className="flex w-[100%] fixed top-0 Top-bar">
+        <div className="flex w-[100%] fixed top-0 Top-bar ">
           <Sidebar />
           <Navbar />
         </div>
