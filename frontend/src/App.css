@@ -784,9 +784,9 @@
   }
 
   .Top-bar {
-    background-image: linear-gradient(to right, rgba(123, 183, 246, 255), rgba(128, 184, 245, 255), rgba(215, 236, 219, 255), rgba(242, 243, 209, 255), rgba(251, 243, 197, 255), rgba(255, 212, 185, 255), rgba(255, 186, 170, 255), rgba(255, 170, 165, 255)130%);
+    /* background-image: linear-gradient(to right, rgba(123, 183, 246, 255), rgba(128, 184, 245, 255), rgba(215, 236, 219, 255), rgba(242, 243, 209, 255), rgba(251, 243, 197, 255), rgba(255, 212, 185, 255), rgba(255, 186, 170, 255), rgba(255, 170, 165, 255)130%);
     background-size: cover;
-    background-repeat: no-repeat;
+    background-repeat: no-repeat; */
     z-index: 1000;
     padding-bottom: 15px;
   }
